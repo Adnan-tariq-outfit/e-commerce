@@ -5,6 +5,7 @@ import {
   CreateOrderRequest,
   UpdateOrderStatusRequest,
   PaginatedOrders,
+  OrderStatus,
 } from './types';
 
 export const orderApi = baseApi.injectEndpoints({
@@ -28,8 +29,12 @@ export const orderApi = baseApi.injectEndpoints({
       invalidatesTags: ['Order', 'Cart'],
     }),
 
-    getAllOrders: builder.query<PaginatedOrders, { page: number; limit: number }>({
-      query: ({ page, limit }) => `/orders/admin/all?page=${page}&limit=${limit}`,
+    getAllOrders: builder.query<PaginatedOrders, { page: number; limit: number; status?: OrderStatus }>({
+      query: ({ page, limit, status }) => {
+        const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+        if (status) params.set('status', status);
+        return `/orders/admin/all?${params.toString()}`;
+      },
       providesTags: ['Order'],
     }),
 
@@ -39,10 +44,7 @@ export const orderApi = baseApi.injectEndpoints({
         method: 'PATCH',
         body,
       }),
-      invalidatesTags: (_result, _error, { id }) => [
-        { type: 'Order', id: 'LIST' },
-        { type: 'Order', id },
-      ],
+      invalidatesTags: ['Order'],
     }),
   }),
 });

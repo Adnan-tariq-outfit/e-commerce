@@ -107,10 +107,12 @@ export class OrderService {
   }
 
   async listAllOrders(query: ListOrdersQueryDto) {
-    const { page = 1, limit = 20 } = query;
+    const { page = 1, limit = 20, status } = query;
+    const where = status ? { status } : {};
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.order.findMany({
+        where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -120,7 +122,7 @@ export class OrderService {
           payment: true,
         },
       }),
-      this.prisma.order.count(),
+      this.prisma.order.count({ where }),
     ]);
 
     return { data, total, page, limit };

@@ -18,10 +18,19 @@ import {
 import { Button } from '@/components/button/Button';
 import Skeleton from '@/components/skeleton/Skeleton';
 import { OrderStatusBadge } from '@/features/order-history/components/OrderStatusBadge';
+import { AdminOrderDetailModal } from './components/AdminOrderDetailModal';
 import { useAppSelector } from '@/store/hooks';
 
 const ALL_STATUSES: OrderStatus[] = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 const TERMINAL_STATUSES: OrderStatus[] = ['DELIVERED', 'CANCELLED'];
+
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING: 'Pending',
+  CONFIRMED: 'Processing',
+  SHIPPED: 'Shipped',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
+};
 
 function getNextStatuses(current: OrderStatus): OrderStatus[] {
   if (TERMINAL_STATUSES.includes(current)) return [];
@@ -33,15 +42,15 @@ function OrderStatusSelect({ order }: { order: AdminOrder }) {
   const nextStatuses = getNextStatuses(order.status);
 
   if (nextStatuses.length === 0) {
-    return <span className="text-xs text-muted-foreground">No actions</span>;
+    return <OrderStatusBadge status={order.status} />;
   }
 
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as OrderStatus;
-    if (!newStatus) return;
+    if (!newStatus || newStatus === order.status) return;
     try {
       await updateStatus({ id: order.id, body: { status: newStatus } }).unwrap();
-      toast.success(`Order status updated to ${newStatus}`);
+      toast.success(`Status updated to ${STATUS_LABELS[newStatus]}`);
     } catch (err: unknown) {
       const error = err as { data?: { message?: string } };
       toast.error(error?.data?.message ?? 'Failed to update status');
@@ -50,17 +59,16 @@ function OrderStatusSelect({ order }: { order: AdminOrder }) {
 
   return (
     <select
-      defaultValue=""
+      key={order.status}
+      defaultValue={order.status}
       onChange={handleChange}
       disabled={isLoading}
       className="text-sm border border-border rounded-md px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      <option value="" disabled>
-        Change status
-      </option>
+      <option value={order.status}>{STATUS_LABELS[order.status]}</option>
       {nextStatuses.map((s) => (
         <option key={s} value={s}>
-          {s.charAt(0) + s.slice(1).toLowerCase()}
+          {STATUS_LABELS[s]}
         </option>
       ))}
     </select>
@@ -68,15 +76,38 @@ function OrderStatusSelect({ order }: { order: AdminOrder }) {
 }
 
 export default function AdminOrdersFeature() {
+  const [activeStatus, setActiveStatus] = useState<OrderStatus | null>(null);
   const [page, setPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
   const limit = 10;
   const { user } = useAppSelector((s) => s.auth);
 
-  const { data, isLoading } = useGetAllOrdersQuery({ page, limit });
+  // Main paginated query for the current filter
+  const { data, isLoading } = useGetAllOrdersQuery({
+    page,
+    limit,
+    status: activeStatus ?? undefined,
+  });
+
+  // Separate query for tab counts — load up to 50 unfiltered to derive counts
+  const { data: countData } = useGetAllOrdersQuery({ page: 1, limit: 50 });
 
   const orders = data?.data ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / limit);
+
+  const allOrdersForCount = countData?.data ?? [];
+  const totalAll = countData?.total ?? 0;
+
+  const countByStatus = allOrdersForCount.reduce<Record<string, number>>((acc, o) => {
+    acc[o.status] = (acc[o.status] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const handleTabChange = (status: OrderStatus | null) => {
+    setActiveStatus(status);
+    setPage(1);
+  };
 
   if (user?.role !== 'ADMIN') {
     return (
@@ -88,25 +119,50 @@ export default function AdminOrdersFeature() {
 
   return (
     <div className="space-y-5">
-      {/* Page header */}
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Order Management</h1>
+        <h1 className="text-2xl font-bold text-foreground">Orders</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
           {isLoading ? 'Loading...' : `${total} total orders`}
         </p>
+      </div>
+
+      {/* Status filter tabs */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => handleTabChange(null)}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+            activeStatus === null
+              ? 'bg-foreground text-background border-foreground'
+              : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/50'
+          }`}
+        >
+          All ({totalAll})
+        </button>
+        {ALL_STATUSES.map((status) => (
+          <button
+            key={status}
+            onClick={() => handleTabChange(status)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+              activeStatus === status
+                ? 'bg-foreground text-background border-foreground'
+                : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/50'
+            }`}
+          >
+            {STATUS_LABELS[status]} ({countByStatus[status] ?? 0})
+          </button>
+        ))}
       </div>
 
       {/* Table */}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Order ID</TableHead>
+            <TableHead>Order</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Date</TableHead>
-            <TableHead>Items</TableHead>
-            <TableHead>Total</TableHead>
-            <TableHead>Payment</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Total</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -114,7 +170,7 @@ export default function AdminOrdersFeature() {
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
-                {Array.from({ length: 8 }).map((_, j) => (
+                {Array.from({ length: 6 }).map((_, j) => (
                   <TableCell key={j}>
                     <Skeleton className="h-4 w-full rounded" />
                   </TableCell>
@@ -123,74 +179,45 @@ export default function AdminOrdersFeature() {
             ))
           ) : orders.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={8}
-                className="text-center py-12 text-muted-foreground"
-              >
+              <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
                 No orders found.
               </TableCell>
             </TableRow>
           ) : (
-            orders.map((order) => {
-              const itemCount = order.items.reduce((s, i) => s + i.quantity, 0);
-              const total = parseFloat(order.totalAmount).toFixed(2);
-              return (
-                <TableRow key={order.id}>
-                  <TableCell>
-                    <span className="font-mono text-xs text-muted-foreground">
-                      #{order.id.slice(-8)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {order.user.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.user.email}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm">{itemCount}</span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="font-semibold text-sm">${total}</span>
-                  </TableCell>
-                  <TableCell>
-                    {order.payment ? (
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          order.payment.status === 'COMPLETED'
-                            ? 'bg-green-100 text-green-800'
-                            : order.payment.status === 'FAILED'
-                            ? 'bg-red-100 text-red-800'
-                            : order.payment.status === 'REFUNDED'
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {order.payment.status.charAt(0) +
-                          order.payment.status.slice(1).toLowerCase()}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatusBadge status={order.status} />
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatusSelect order={order} />
-                  </TableCell>
-                </TableRow>
-              );
-            })
+            orders.map((order) => (
+              <TableRow key={order.id}>
+                <TableCell>
+                  <button
+                    onClick={() => setSelectedOrder(order)}
+                    className="font-mono text-xs text-primary hover:underline"
+                  >
+                    #{order.id.slice(-8).toUpperCase()}
+                  </button>
+                </TableCell>
+                <TableCell>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{order.user.name}</p>
+                    <p className="text-xs text-muted-foreground">{order.user.email}</p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <OrderStatusBadge status={order.status} />
+                </TableCell>
+                <TableCell>
+                  <span className="font-semibold text-sm">
+                    ${parseFloat(order.totalAmount).toFixed(2)}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <OrderStatusSelect order={order} />
+                </TableCell>
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>
@@ -221,6 +248,12 @@ export default function AdminOrdersFeature() {
           </div>
         </div>
       )}
+
+      {/* Order detail modal */}
+      <AdminOrderDetailModal
+        order={selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+      />
     </div>
   );
 }
