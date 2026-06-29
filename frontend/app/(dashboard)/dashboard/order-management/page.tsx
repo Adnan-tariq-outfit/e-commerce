@@ -1,1 +1,5 @@
-export default function ordermanagementPage() { return <div className="p-8">Placeholder for ordermanagement page</div>; }
+import AdminOrdersFeature from '@/features/dashboard/orders';
+
+export default function OrderManagementPage() {
+  return <AdminOrdersFeature />;
+}

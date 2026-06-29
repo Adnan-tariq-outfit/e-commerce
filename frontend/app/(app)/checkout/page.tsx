@@ -1,1 +1,5 @@
-export default function checkoutPage() { return <div className="p-8">Placeholder for checkout page</div>; }
+import CheckoutFeature from '@/features/checkout';
+
+export default function CheckoutPage() {
+  return <CheckoutFeature />;
+}
