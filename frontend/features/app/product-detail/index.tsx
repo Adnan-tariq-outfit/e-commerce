@@ -144,7 +144,7 @@ export function ProductDetailFeature({ id }: ProductDetailFeatureProps) {
 
         {/* Right — Product details */}
         <div className="flex flex-col gap-4">
-          <Badge variant="purple">{product.category.name.toUpperCase()}</Badge>
+          <Badge variant="purple" className="self-start">{product.category.name.toUpperCase()}</Badge>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
             {product.name}
