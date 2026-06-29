@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Package, ShoppingCart, ArrowUpRight, X } from 'lucide-react';
+import { LayoutGrid, Package, ShoppingCart, ArrowUpRight, X, Tag } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface AdminSidebarProps {
@@ -16,6 +16,7 @@ export function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
   const links = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
     { name: 'Products', href: '/dashboard/products', icon: Package },
+    { name: 'Categories', href: '/dashboard/categories', icon: Tag },
     { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCart },
   ];
 

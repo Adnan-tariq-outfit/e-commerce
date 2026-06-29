@@ -42,11 +42,7 @@ export function AdminHeader({ setIsSidebarOpen }: AdminHeaderProps) {
           <span className="sr-only">Toggle theme</span>
         </button>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full text-xs font-medium border border-green-500/20 whitespace-nowrap">
-          <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0"></div>
-          <span className="hidden sm:inline">All systems operational</span>
-          <span className="sm:hidden">Operational</span>
-        </div>
+
       </div>
     </header>
   );
