@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
@@ -93,6 +93,14 @@ export function ProductsTable() {
   });
 
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const products = data?.data ?? [];
   const meta = data?.meta;
@@ -229,16 +237,18 @@ export function ProductsTable() {
       {/* Search */}
       <form onSubmit={handleSearchSubmit} className="flex gap-2">
         <div className="relative flex-1 max-w-sm">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-          />
+          <button
+            type="submit"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Search size={16} />
+          </button>
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search products..."
-            className="w-full pl-9 pr-4 py-2.5 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 border border-border bg-background text-foreground placeholder:text-muted-foreground rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-ring/20 shadow-sm transition-all duration-200"
           />
         </div>
       </form>

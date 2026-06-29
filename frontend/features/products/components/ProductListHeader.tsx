@@ -20,7 +20,7 @@ export const ProductListHeader = ({ totalCount, searchQuery, onSearchChange }: P
         </p>
       </div>
 
-      <div className="relative w-full">
+      <div className="relative w-full max-w-lg">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <Search className="h-5 w-5 text-muted-foreground" />
         </div>

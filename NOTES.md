@@ -145,7 +145,32 @@ Algorithm:
 
 ---
 
-## 8. Agent Session Context
+## 8. Post-Submission Fixes & Iterations
+
+### 2026-06-30 — Dashboard Product Search
+
+**Problem:** The search input in the admin product management table was not working. The Search icon was purely decorative (not a button), so clicking it did nothing. The form required pressing Enter to submit, which was not obvious to users. Additionally, clearing the input did not reset results — the stale `search` state continued filtering until the form was resubmitted.
+
+**Fix (`frontend/features/dashboard/products/index.tsx`):**
+- Converted the Search icon into a `<button type="submit">` so clicking it triggers the search
+- Added a `useEffect`-based 300ms debounce: search now fires automatically as the user types without needing to press Enter or click the button
+- Clearing the input now resets results immediately via the debounce
+
+**Pattern used:** Two-state approach retained (`searchInput` for the controlled input, `search` for the active query param). The `useEffect` debounce bridges them — `handleSearchSubmit` still works for immediate submission via Enter or icon click.
+
+### 2026-06-30 — Search Input Styling
+
+**Dashboard search (`frontend/features/dashboard/products/index.tsx`):**
+- Updated focus ring from `indigo-500/30` to project theme tokens: `focus:border-primary focus:ring-ring/20`
+- Changed `rounded-lg` to `rounded-xl` for visual consistency
+
+**Storefront search (`frontend/features/products/components/ProductListHeader.tsx`):**
+- Search bar was `w-full` spanning the entire `max-w-7xl` container width — visually stretched across the full page
+- Fixed by adding `max-w-lg` to the search wrapper, constraining it to 32rem
+
+---
+
+## 9. Agent Session Context
 
 Claude Code session logs are stored at `.claude/` and can be reviewed alongside this file. Each task is committed with a clear message describing what was built, which agent built it, and what was corrected.
 
