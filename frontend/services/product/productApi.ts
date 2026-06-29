@@ -61,6 +61,13 @@ export const productApi = baseApi.injectEndpoints({
         'Category',
       ],
     }),
+
+    recordView: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/products/${id}/view`,
+        method: 'POST',
+      }),
+    }),
   }),
 });
 
@@ -70,4 +77,5 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useRecordViewMutation,
 } = productApi;

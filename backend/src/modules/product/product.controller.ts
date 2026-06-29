@@ -28,6 +28,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -55,6 +56,18 @@ export class ProductController {
   @ApiResponse({ status: 404, description: 'Product not found' })
   findOne(@Param('id') id: string) {
     return this.productService.findOne(id);
+  }
+
+  @Post(':id/view')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ summary: 'Record that the authenticated user viewed a product' })
+  @ApiResponse({ status: 201, description: 'View recorded' })
+  recordView(
+    @Param('id') id: string,
+    @GetUser('id') userId: string,
+  ) {
+    return this.productService.recordView(id, userId);
   }
 
   @Post()

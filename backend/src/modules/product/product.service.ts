@@ -149,4 +149,11 @@ export class ProductService {
     await this.prisma.product.delete({ where: { id } });
     return { message: 'Product deleted successfully' };
   }
+
+  async recordView(productId: string, userId: string): Promise<void> {
+    await this.findOne(productId);
+    await this.prisma.productView.create({
+      data: { userId, productId },
+    });
+  }
 }
