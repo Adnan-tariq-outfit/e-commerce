@@ -32,6 +32,8 @@ export interface ProductQueryParams {
   limit?: number;
   search?: string;
   categoryId?: string;
+  maxPrice?: number;
+  sortBy?: string;
 }
 
 export interface CreateProductRequest {

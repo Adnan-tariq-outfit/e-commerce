@@ -7,12 +7,14 @@ import { useTheme } from '@/theme/provider';
 import { useAppSelector } from '@/store/hooks';
 import { getImageUrl } from '@/utils/getImageUrl';
 import ProfileDropdown from '@/components/profile-dropdown/ProfileDropdown';
+import { useGetCategoriesQuery } from '@/services/category/categoryApi';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
+  const { data: categories } = useGetCategoriesQuery();
 
   const themeOrder = ["light", "dark", "system"] as const;
   const cycleTheme = () => {
@@ -36,20 +38,26 @@ export function Header() {
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="bg-primary text-primary-foreground p-1.5 rounded-md hidden sm:block">
                 <LayoutGrid size={20} />
               </div>
               <span className="font-bold text-lg sm:text-xl tracking-tight">FORMA</span>
-            </div>
+            </Link>
           </div>
 
           {/* Center Navigation (Desktop) */}
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground absolute left-1/2 -translate-x-1/2">
             <Link href="/products" className="transition-colors hover:text-foreground">Shop All</Link>
-            <Link href="/products?category=electronics" className="transition-colors hover:text-foreground">Electronics</Link>
-            <Link href="/products?category=fashion" className="transition-colors hover:text-foreground">Fashion</Link>
-            <Link href="/products?category=home" className="transition-colors hover:text-foreground">Home</Link>
+            {categories?.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/products?categoryId=${cat.id}`}
+                className="transition-colors hover:text-foreground"
+              >
+                {cat.name}
+              </Link>
+            ))}
           </nav>
 
           {/* Right: Actions */}
@@ -115,9 +123,16 @@ export function Header() {
           <div className="md:hidden border-t border-border/40 bg-background absolute w-full left-0 shadow-lg">
             <nav className="flex flex-col p-4 text-sm font-medium gap-4">
               <Link href="/products" onClick={() => setIsMobileMenuOpen(false)} className="transition-colors hover:text-foreground text-muted-foreground block py-1">Shop All</Link>
-              <Link href="/products?category=electronics" onClick={() => setIsMobileMenuOpen(false)} className="transition-colors hover:text-foreground text-muted-foreground block py-1">Electronics</Link>
-              <Link href="/products?category=fashion" onClick={() => setIsMobileMenuOpen(false)} className="transition-colors hover:text-foreground text-muted-foreground block py-1">Fashion</Link>
-              <Link href="/products?category=home" onClick={() => setIsMobileMenuOpen(false)} className="transition-colors hover:text-foreground text-muted-foreground block py-1">Home</Link>
+              {categories?.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/products?categoryId=${cat.id}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="transition-colors hover:text-foreground text-muted-foreground block py-1"
+                >
+                  {cat.name}
+                </Link>
+              ))}
               <hr className="border-border/40" />
               {isAuthenticated ? (
                 <>

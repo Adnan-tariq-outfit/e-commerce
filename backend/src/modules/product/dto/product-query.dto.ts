@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min, IsNumber } from 'class-validator';
 
 export class ProductQueryDto {
   @ApiPropertyOptional({ example: 1, description: 'Page number (default: 1)' })
@@ -26,4 +26,16 @@ export class ProductQueryDto {
   @IsString()
   @IsOptional()
   categoryId?: string;
+
+  @ApiPropertyOptional({ example: 500, description: 'Filter by maximum price' })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  maxPrice?: number;
+
+  @ApiPropertyOptional({ example: 'newest', description: 'Sort by field (newest, price_asc, price_desc)' })
+  @IsString()
+  @IsOptional()
+  sortBy?: string;
 }

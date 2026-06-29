@@ -28,15 +28,25 @@ export class ProductService {
   }
 
   async findAll(query: ProductQueryDto) {
-    const { page = 1, limit = 10, search, categoryId } = query;
+    const { page = 1, limit = 10, search, categoryId, maxPrice, sortBy } = query;
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {};
+    const where: any = {};
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
     }
     if (categoryId) {
       where.categoryId = categoryId;
+    }
+    if (maxPrice !== undefined) {
+      where.price = { lte: maxPrice };
+    }
+
+    let orderBy: any = { createdAt: 'desc' };
+    if (sortBy === 'price_asc') {
+      orderBy = { price: 'asc' };
+    } else if (sortBy === 'price_desc') {
+      orderBy = { price: 'desc' };
     }
 
     const [products, total] = await Promise.all([
@@ -44,7 +54,7 @@ export class ProductService {
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         include: {
           category: { select: { id: true, name: true, slug: true } },
         },
