@@ -28,7 +28,8 @@
     "docker:logs": "docker compose logs -f",
     "docker:restart": "docker compose restart",
     "docker:stop": "docker compose stop",
-    "docker:start": "docker compose start"
+    "docker:start": "docker compose start",
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
