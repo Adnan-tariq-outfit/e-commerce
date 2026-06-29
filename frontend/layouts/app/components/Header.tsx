@@ -8,6 +8,7 @@ import { useAppSelector } from '@/store/hooks';
 import { getImageUrl } from '@/utils/getImageUrl';
 import ProfileDropdown from '@/components/profile-dropdown/ProfileDropdown';
 import { useGetCategoriesQuery } from '@/services/category/categoryApi';
+import { useGetCartQuery } from '@/services/cart/cartApi';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,6 +16,8 @@ export function Header() {
   const { theme, setTheme } = useTheme();
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
   const { data: categories } = useGetCategoriesQuery();
+  const { data: cart } = useGetCartQuery(undefined, { skip: !isAuthenticated });
+  const cartItemCount = cart?.items?.reduce((sum, i) => sum + i.quantity, 0) ?? 0;
 
   const themeOrder = ["light", "dark", "system"] as const;
   const cycleTheme = () => {
@@ -73,10 +76,18 @@ export function Header() {
             </button>
 
             {/* Cart */}
-            <button className="h-9 w-9 flex items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors relative">
+            <Link
+              href="/cart"
+              className="h-9 w-9 flex items-center justify-center rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors relative"
+            >
               <ShoppingBag size={18} />
-              <span className="sr-only">Cart</span>
-            </button>
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center leading-none">
+                  {cartItemCount > 99 ? '99+' : cartItemCount}
+                </span>
+              )}
+              <span className="sr-only">Cart ({cartItemCount} items)</span>
+            </Link>
 
             {isAuthenticated ? (
               /* Avatar button — authenticated */
