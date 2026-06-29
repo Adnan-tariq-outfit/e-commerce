@@ -20,8 +20,8 @@ const variantClasses: Record<ButtonVariant, string> = {
 
 const sizeClasses: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-xs rounded-md",
-  md: "h-9 px-4 py-2 text-sm rounded-md",
-  lg: "h-10 px-8 text-sm rounded-md",
+  md: "h-9 px-4 py-2 text-sm rounded-lg",
+  lg: "h-10 px-8 text-base rounded-xl",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

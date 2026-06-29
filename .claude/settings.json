@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($job = Start-Job { Set-Location \"d:\\\\All Projects\\\\My Projects\\\\e-commerce-app\\\\backend\"; npm run start:dev 2>&1 }; Start-Sleep 18; Invoke-RestMethod -Uri \"http://localhost:3001/api/v1/auth/login\" -Method POST -Body '{\"email\":\"test@test.com\",\"password\":\"wrongpass\"}' -ContentType \"application/json\" -ErrorAction SilentlyContinue 2>&1; Start-Sleep 1; Invoke-WebRequest -Uri \"http://localhost:3001/api/docs\" -Method GET -UseBasicParsing -ErrorAction SilentlyContinue | Select-Object StatusCode, StatusDescription; Stop-Job $job; Remove-Job $job)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/layouts/dashboard/components/**)",
+      "Bash(find \"d:\\\\All Projects\\\\My Projects\\\\Community App\\\\frontend\\\\enums\" -type f)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/enums/**)",
+      "Bash(grep -r \"admin.*toggle\\\\|role.*switch\\\\|switch.*role\\\\|toggle.*admin\" \"d:\\\\All Projects\\\\My Projects\\\\Community App\\\\frontend\" --include=\"*.tsx\" --include=\"*.ts\" -i)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/**)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/layouts/app/components/**)",
+      "Bash(find \"d:\\\\All Projects\\\\My Projects\\\\Community App\\\\frontend\\\\layouts\\\\app\\\\components\" -type f)",
+      "Bash(find \"d:\\\\All Projects\\\\My Projects\\\\Community App\\\\frontend\" -path \"*/theme/*\" -type f)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/theme/**)",
+      "Bash(find \"d:\\\\All Projects\\\\My Projects\\\\Community App\\\\frontend\\\\constants\" -type f)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/constants/**)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/app/\\(app\\)/profile/**)",
+      "Bash(find \"d:\\\\All Projects\\\\My Projects\\\\Community App\\\\frontend\\\\features\\\\app\\\\profile\" -type f)",
+      "Read(//d/All Projects/My Projects/Community App/frontend/features/app/profile/**)"
+    ]
+  }
+}

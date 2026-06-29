@@ -19,12 +19,14 @@ export const authApi = baseApi.injectEndpoints({
     }),
 
     register: builder.mutation<AuthResponse, RegisterRequest>({
-      query: (userData) => ({
-        url: '/auth/register',
-        method: 'POST',
-        body: userData,
-        credentials: 'include',
-      }),
+      query: (userData) => {
+        const formData = new FormData();
+        formData.append('name', userData.name);
+        formData.append('email', userData.email);
+        formData.append('password', userData.password);
+        if (userData.avatar_url) formData.append('avatar_url', userData.avatar_url);
+        return { url: '/auth/register', method: 'POST', body: formData };
+      },
     }),
 
     logout: builder.mutation<void, void>({

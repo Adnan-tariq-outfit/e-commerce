@@ -14,8 +14,7 @@ import {
   ShoppingBag,
   UserPlus,
   Camera,
-  AlignLeft,
-  AtSign,
+  User,
   Mail,
   Lock,
   CheckCircle,
@@ -41,16 +40,14 @@ export default function Register() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm({
     mode: "onTouched",
     resolver: yupResolver(registerSchema),
     defaultValues: {
-      username: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      bio: "",
     },
   });
 
@@ -173,27 +170,27 @@ export default function Register() {
               className="flex flex-col gap-3.5"
               onSubmit={handleSubmit(onSubmit)}
             >
-              {/* Username */}
+              {/* Full name */}
               <div>
                 <label
-                  htmlFor="username"
+                  htmlFor="name"
                   className="text-sm font-medium text-foreground mb-1 block"
                 >
-                  Username
+                  Full name
                 </label>
                 <div className="relative">
-                  <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground" />
                   <input
                     className="w-full pl-11 pr-4 py-2.5 bg-muted rounded-xl border border-transparent focus:border-ring focus:ring-2 focus:ring-ring/20 outline-none transition-all placeholder:text-muted-foreground text-sm"
                     type="text"
-                    id="username"
-                    placeholder="johndoe"
-                    {...register("username")}
+                    id="name"
+                    placeholder="John Doe"
+                    {...register("name")}
                   />
                 </div>
-                {errors.username && (
+                {errors.name && (
                   <p className="text-xs text-danger mt-1">
-                    {errors.username.message}
+                    {errors.name.message}
                   </p>
                 )}
               </div>
@@ -337,39 +334,6 @@ export default function Register() {
                   className="hidden"
                   onChange={handleImageChange}
                 />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label
-                  htmlFor="bio"
-                  className="text-sm font-medium text-foreground mb-1 block"
-                >
-                  Bio{" "}
-                  <span className="text-muted-foreground font-normal text-xs">
-                    (optional)
-                  </span>
-                </label>
-                <div className="relative">
-                  <AlignLeft className="absolute left-4 top-3 w-4.5 h-4.5 text-muted-foreground" />
-                  <textarea
-                    className="w-full pl-11 pr-4 py-2.5 bg-muted rounded-xl border border-transparent focus:border-ring focus:ring-2 focus:ring-ring/20 outline-none transition-all placeholder:text-muted-foreground min-h-[70px] resize-none text-sm"
-                    id="bio"
-                    placeholder="Tell us a little about yourself..."
-                    maxLength={200}
-                    {...register("bio")}
-                  />
-                </div>
-                <div className="flex justify-between mt-1">
-                  {errors.bio ? (
-                    <p className="text-xs text-danger">{errors.bio.message}</p>
-                  ) : (
-                    <span />
-                  )}
-                  <span className="text-[10px] text-muted-foreground">
-                    {watch("bio")?.length || 0}/200
-                  </span>
-                </div>
               </div>
 
               <Button
