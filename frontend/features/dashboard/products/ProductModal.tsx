@@ -28,7 +28,12 @@ const productSchema = yup.object().shape({
     .transform((value, originalValue) => (String(originalValue).trim() === '' ? null : value))
     .nullable()
     .typeError('Original price must be a valid number')
-    .positive('Original price must be greater than zero'),
+    .positive('Original price must be greater than zero')
+    .test('greater-than-price', 'Original price must be greater than the sale price', function (value) {
+      if (value == null) return true;
+      const { price } = this.parent;
+      return value > price;
+    }),
   stockQty: yup
     .number()
     .typeError('Stock quantity must be a valid number')
@@ -126,6 +131,7 @@ export function ProductModal({ isOpen, onClose, editing }: ProductModalProps) {
     prevObjectUrls.current = [...prevObjectUrls.current, ...objectUrls];
     setNewFiles((prev) => [...prev, ...filesArray]);
     setPreviews((prev) => [...prev, ...objectUrls]);
+    if (errors.images) setErrors((prev) => ({ ...prev, images: '' }));
   };
 
   const handleRemove = (index: number) => {
@@ -164,6 +170,11 @@ export function ProductModal({ isOpen, onClose, editing }: ProductModalProps) {
         setErrors(validationErrors);
         return;
       }
+    }
+
+    if (previews.length === 0) {
+      setErrors((prev) => ({ ...prev, images: 'At least one image is required' }));
+      return;
     }
 
     const formData = new FormData();
@@ -235,6 +246,9 @@ export function ProductModal({ isOpen, onClose, editing }: ProductModalProps) {
                   onAddFiles={handleAddFiles}
                   onRemove={handleRemove}
                 />
+                {errors.images && (
+                  <p className="mt-1.5 text-xs text-red-500">{errors.images}</p>
+                )}
               </div>
 
               {/* Right side: Fields */}
