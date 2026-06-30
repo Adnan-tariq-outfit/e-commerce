@@ -76,14 +76,14 @@ export const ProductSidebar = ({
             Max Price
           </h3>
           <div className="flex items-center justify-between text-sm font-medium mb-4">
-            <span className="text-muted-foreground">$0</span>
-            <span className="text-primary">${maxPrice}</span>
+            <span className="text-muted-foreground">Rs. 0</span>
+            <span className="text-primary">Rs. {maxPrice.toLocaleString()}</span>
           </div>
-          <input 
-            type="range" 
-            min="0" 
-            max="1000" 
-            step="10"
+          <input
+            type="range"
+            min="0"
+            max="500000"
+            step="5000"
             value={maxPrice}
             onChange={(e) => onMaxPriceChange(Number(e.target.value))}
             className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"

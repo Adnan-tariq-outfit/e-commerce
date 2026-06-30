@@ -128,7 +128,7 @@ export default function CartFeature() {
                   >
                     {item.product.name}
                   </Link>
-                  <p className="text-sm text-muted-foreground mt-0.5">${price.toFixed(2)} each</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">Rs. {price.toLocaleString()} each</p>
 
                   {/* Quantity stepper */}
                   <div className="flex items-center gap-2 mt-3">
@@ -156,7 +156,7 @@ export default function CartFeature() {
 
                 {/* Subtotal + remove */}
                 <div className="flex flex-col items-end justify-between shrink-0">
-                  <span className="font-bold text-sm">${(price * item.quantity).toFixed(2)}</span>
+                  <span className="font-bold text-sm">Rs. {(price * item.quantity).toLocaleString()}</span>
                   <button
                     onClick={() => handleRemove(item.id)}
                     className="text-muted-foreground hover:text-destructive transition-colors"
@@ -177,12 +177,12 @@ export default function CartFeature() {
 
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Subtotal ({totalQuantity} {totalQuantity === 1 ? 'item' : 'items'})</span>
-              <span>${total.toFixed(2)}</span>
+              <span>Rs. {total.toLocaleString()}</span>
             </div>
 
             <div className="border-t border-border pt-4 flex justify-between font-bold">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>Rs. {total.toLocaleString()}</span>
             </div>
 
             <Link href="/checkout" className="w-full">

@@ -158,6 +158,59 @@ Algorithm:
 
 **Pattern used:** Two-state approach retained (`searchInput` for the controlled input, `search` for the active query param). The `useEffect` debounce bridges them — `handleSearchSubmit` still works for immediate submission via Enter or icon click.
 
+### 2026-06-30 — Database Credentials Mismatch
+
+**Problem:** Backend threw `PrismaClientKnownRequestError: Authentication failed against the database server` on every request. The `.env` file had `DATABASE_URL` pointing to user `admin` / password `admin123`, but `docker-compose.yml` creates the container with `POSTGRES_USER: postgres` / `POSTGRES_PASSWORD: postgres`.
+
+**Fix (`backend/.env`):** Updated `DATABASE_URL` to `postgresql://postgres:postgres@localhost:5432/ecommerce_db?schema=public` to match the actual Docker container credentials.
+
+---
+
+### 2026-06-30 — Products Not Showing (Max Price Filter Bug)
+
+**Problem:** The products page showed "0 products" and "No products match your filters" even though categories were visible in the sidebar. The API was returning empty results.
+
+**Root cause (`frontend/features/products/ProductListView.tsx`):** `maxPrice` was always sent to the API with its default value of `1000`. The backend applies `price <= maxPrice` whenever the parameter is present — so any product priced above Rs. 1,000 was silently filtered out. Since all products in the database were priced above that threshold, the response was always empty.
+
+**Fix:** Changed `maxPrice` to only be included in the query when the user actively moves the slider below the maximum: `...(maxPrice < 500000 && { maxPrice })`. At default, no price filter is applied and all products are returned.
+
+**Additional fix:** Raised the slider maximum from `1,000` to `500,000` and the step from `10` to `5,000` to match realistic Rs. pricing.
+
+---
+
+### 2026-06-30 — Currency Symbol: $ → Rs.
+
+**Problem:** All price displays used `$` (US dollar) throughout the storefront, cart, checkout, order history, admin orders, and dashboard. The admin product management page already used `Rs.` inconsistently.
+
+**Fix:** Replaced all inline `$` currency formatting with `Rs.` across 9 files:
+- `features/home/components/ExtendedProductCard.tsx`
+- `features/app/product-detail/index.tsx`
+- `features/cart/index.tsx`
+- `features/checkout/index.tsx`
+- `features/order-history/components/OrderDetailModal.tsx`
+- `features/dashboard/orders/index.tsx`
+- `features/dashboard/orders/components/AdminOrderDetailModal.tsx`
+- `features/dashboard/components/RevenueChart.tsx`
+- `features/dashboard/index.tsx`
+
+Formatting changed from `$x.toFixed(2)` to `Rs. x.toLocaleString()` — whole numbers with locale-aware thousands separators (e.g. Rs. 1,299 instead of $1299.00).
+
+---
+
+### 2026-06-30 — Product Delete: Foreign Key Constraint Error
+
+**Problem:** Attempting to delete a product that had existing order items failed with a raw `PrismaClientKnownRequestError` (foreign key constraint on `OrderItem_productId_fkey`). The `GlobalExceptionFilter` was not catching it — the duck-typing check on `code.startsWith('P')` is unreliable with Prisma 7's adapter-pg, which wraps errors differently. The frontend showed a generic unhandled error.
+
+**Fix (two-layer):**
+
+1. **Backend (`backend/src/modules/product/product.service.ts`):** Added a targeted try-catch inside the `remove()` method around `prisma.product.delete()`. Detects the foreign key error by checking the error message for `"foreign key"` (case-insensitive), which is reliable across Prisma versions and adapter configurations. Throws `ConflictException` (409) with a clear user-facing message: *"This product cannot be deleted because it is linked to existing orders."*
+
+2. **Frontend (`frontend/features/dashboard/products/index.tsx`):** Updated `DeleteConfirmDialog` to have two states — a normal confirm state and an error state. On failure, the dialog transitions to the error state showing the backend message inline, rather than closing or firing a generic toast. The user sees exactly why deletion failed without leaving the context.
+
+3. **Filter improvement (`backend/src/common/filters/http-exception.filter.ts`):** Updated `isPrismaError()` to use `exception.constructor.name.startsWith('PrismaClient')` — more reliable than duck-typing on the `code` property. Also maps P2002 (unique constraint) → 409 and P2025 (not found) → 404 for consistent error handling across all future modules.
+
+---
+
 ### 2026-06-30 — Search Input Styling
 
 **Dashboard search (`frontend/features/dashboard/products/index.tsx`):**

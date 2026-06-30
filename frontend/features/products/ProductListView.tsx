@@ -26,7 +26,7 @@ export const ProductListView = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     searchParams.get('categoryId'),
   );
-  const [maxPrice, setMaxPrice] = useState<number>(1000);
+  const [maxPrice, setMaxPrice] = useState<number>(500000);
   const [sortBy, setSortBy] = useState<string>(
     searchParams.get('sortBy') ?? 'newest',
   );
@@ -44,7 +44,7 @@ export const ProductListView = () => {
     limit: 12,
     ...(searchQuery && { search: searchQuery }),
     ...(selectedCategory && { categoryId: selectedCategory }),
-    maxPrice,
+    ...(maxPrice < 500000 && { maxPrice }),
     sortBy,
   });
 
@@ -71,7 +71,7 @@ export const ProductListView = () => {
   const handleClearAll = () => {
     setSearchQuery('');
     setSelectedCategory(null);
-    setMaxPrice(1000);
+    setMaxPrice(500000);
     setSortBy('newest');
     setPage(1);
     router.replace('/products', { scroll: false });

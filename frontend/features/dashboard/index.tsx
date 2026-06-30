@@ -18,7 +18,7 @@ const STAT_CONFIGS = [
     icon: CircleDollarSign,
     iconColor: 'text-indigo-500',
     iconBg: 'bg-indigo-500/10',
-    format: (v: number) => `$${v.toLocaleString()}`,
+    format: (v: number) => `Rs. ${v.toLocaleString()}`,
   },
   {
     key: 'totalOrders' as const,
@@ -42,7 +42,7 @@ const STAT_CONFIGS = [
     icon: TrendingUp,
     iconColor: 'text-orange-500',
     iconBg: 'bg-orange-500/10',
-    format: (v: number) => `$${v.toLocaleString()}`,
+    format: (v: number) => `Rs. ${v.toLocaleString()}`,
   },
 ];
 

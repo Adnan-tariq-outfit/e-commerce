@@ -210,7 +210,7 @@ export default function AdminOrdersFeature() {
                 </TableCell>
                 <TableCell>
                   <span className="font-semibold text-sm">
-                    ${parseFloat(order.totalAmount).toFixed(2)}
+                    Rs. {parseFloat(order.totalAmount).toLocaleString()}
                   </span>
                 </TableCell>
                 <TableCell>

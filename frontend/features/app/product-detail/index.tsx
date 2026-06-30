@@ -163,11 +163,11 @@ export function ProductDetailFeature({ id }: ProductDetailFeatureProps) {
 
           {/* Price */}
           <div className="flex items-baseline gap-3">
-            <span className="text-4xl font-extrabold text-foreground">${price.toFixed(0)}</span>
+            <span className="text-4xl font-extrabold text-foreground">Rs. {price.toLocaleString()}</span>
             {originalPrice && originalPrice > price && (
               <>
                 <span className="text-lg text-muted-foreground line-through">
-                  ${originalPrice.toFixed(0)}
+                  Rs. {originalPrice.toLocaleString()}
                 </span>
                 <span className="text-sm font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
                   -{discount}%

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -141,12 +142,22 @@ export class ProductService {
   async remove(id: string) {
     const product = await this.findOne(id);
 
-    // Delete all associated image files from disk
     for (const imagePath of product.images) {
       await this.deleteImageFile(imagePath);
     }
 
-    await this.prisma.product.delete({ where: { id } });
+    try {
+      await this.prisma.product.delete({ where: { id } });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.toLowerCase().includes('foreign key') || msg.includes('P2003')) {
+        throw new ConflictException(
+          'This product cannot be deleted because it is linked to existing orders. Remove the orders first or archive the product instead.',
+        );
+      }
+      throw e;
+    }
+
     return { message: 'Product deleted successfully' };
   }
 

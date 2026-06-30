@@ -19,8 +19,8 @@ interface RevenueChartProps {
 }
 
 const formatYAxis = (value: number) => {
-  if (value === 0) return '$0';
-  return `$${(value / 1000).toFixed(1)}k`;
+  if (value === 0) return 'Rs. 0';
+  return `Rs. ${(value / 1000).toFixed(1)}k`;
 };
 
 export default function RevenueChart({
@@ -46,7 +46,7 @@ export default function RevenueChart({
           <p className="text-sm text-muted-foreground">Last 30 days</p>
         </div>
         <div className="text-right">
-          <p className="text-xl font-bold">${totalRevenue.toLocaleString()}</p>
+          <p className="text-xl font-bold">Rs. {totalRevenue.toLocaleString()}</p>
           <p className={`text-xs font-medium ${changeColor}`}>
             {changePrefix}{revenueChange}% MoM
           </p>
@@ -82,7 +82,7 @@ export default function RevenueChart({
             width={55}
           />
           <Tooltip
-            formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
+            formatter={(value) => [`Rs. ${Number(value).toLocaleString()}`, 'Revenue']}
             labelFormatter={(label) => `Day ${label}`}
             contentStyle={{
               borderRadius: '8px',

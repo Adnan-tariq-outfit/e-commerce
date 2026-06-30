@@ -113,11 +113,11 @@ export const ExtendedProductCard = ({ product, variant }: ExtendedProductCardPro
         <div className="flex items-center justify-between mt-auto pt-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-card-foreground">
-              ${price.toFixed(2)}
+              Rs. {price.toLocaleString()}
             </span>
             {originalPrice && originalPrice > price && (
               <span className="text-xs text-muted-foreground line-through">
-                ${originalPrice.toFixed(2)}
+                Rs. {originalPrice.toLocaleString()}
               </span>
             )}
           </div>

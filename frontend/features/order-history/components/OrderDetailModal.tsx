@@ -65,11 +65,11 @@ export function OrderDetailModal({ orderId, onClose }: OrderDetailModalProps) {
                           {item.product.name}
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {item.quantity} &times; ${unit.toFixed(2)}
+                          {item.quantity} &times; Rs. {unit.toLocaleString()}
                         </p>
                       </div>
                       <span className="font-semibold text-sm shrink-0">
-                        ${subtotal.toFixed(2)}
+                        Rs. {subtotal.toLocaleString()}
                       </span>
                     </div>
                   );
@@ -81,7 +81,7 @@ export function OrderDetailModal({ orderId, onClose }: OrderDetailModalProps) {
             <div className="flex justify-between items-center font-bold text-foreground text-base py-3 border-t border-border mb-6">
               <span>Total</span>
               <span>
-                ${parseFloat(order.totalAmount).toFixed(2)}
+                Rs. {parseFloat(order.totalAmount).toLocaleString()}
               </span>
             </div>
 

@@ -116,7 +116,7 @@ export default function CheckoutFeature() {
                     </p>
                   </div>
                   <span className="text-sm font-semibold shrink-0">
-                    ${(price * item.quantity).toFixed(2)}
+                    Rs. {(price * item.quantity).toLocaleString()}
                   </span>
                 </div>
               );
@@ -124,7 +124,7 @@ export default function CheckoutFeature() {
           </div>
           <div className="border-t border-border mt-4 pt-4 flex justify-between font-bold text-foreground">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>Rs. {total.toLocaleString()}</span>
           </div>
         </div>
 

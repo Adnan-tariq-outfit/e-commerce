@@ -35,43 +35,65 @@ function DeleteConfirmDialog({
   product,
   onConfirm,
   onCancel,
+  onClose,
   isLoading,
+  errorMessage,
 }: {
   product: Product;
   onConfirm: () => void;
   onCancel: () => void;
+  onClose: () => void;
   isLoading: boolean;
+  errorMessage: string | null;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={errorMessage ? onClose : onCancel} />
       <div className="relative bg-card text-foreground rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex flex-col items-center text-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-            <AlertTriangle size={22} className="text-red-500" />
+        {errorMessage ? (
+          <div className="flex flex-col items-center text-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+              <AlertTriangle size={22} className="text-red-500" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground">Cannot Delete Product</h2>
+            <p className="text-sm text-muted-foreground">{errorMessage}</p>
+            <button
+              onClick={onClose}
+              className="mt-2 w-full px-4 py-2.5 text-sm font-medium border border-border rounded-lg hover:bg-muted transition-colors"
+            >
+              Close
+            </button>
           </div>
-          <h2 className="text-lg font-bold text-foreground">Delete Product</h2>
-          <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete{' '}
-            <span className="font-semibold text-foreground">{product.name}</span>? This
-            action cannot be undone and will also remove all product images.
-          </p>
-        </div>
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={onCancel}
-            className="flex-1 px-4 py-2.5 text-sm font-medium border border-border rounded-lg hover:bg-muted transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isLoading}
-            className="flex-1 px-4 py-2.5 text-sm font-medium bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
-          >
-            {isLoading ? 'Deleting...' : 'Delete'}
-          </button>
-        </div>
+        ) : (
+          <>
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+                <AlertTriangle size={22} className="text-red-500" />
+              </div>
+              <h2 className="text-lg font-bold text-foreground">Delete Product</h2>
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to delete{' '}
+                <span className="font-semibold text-foreground">{product.name}</span>? This
+                action cannot be undone and will also remove all product images.
+              </p>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={onCancel}
+                className="flex-1 px-4 py-2.5 text-sm font-medium border border-border rounded-lg hover:bg-muted transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onConfirm}
+                disabled={isLoading}
+                className="flex-1 px-4 py-2.5 text-sm font-medium bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
+              >
+                {isLoading ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -85,6 +107,7 @@ export function ProductsTable() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const { data, isLoading, isFetching } = useGetProductsQuery({
     page,
@@ -122,10 +145,16 @@ export function ProductsTable() {
       await deleteProduct(deletingProduct.id).unwrap();
       toast.success(`"${deletingProduct.name}" deleted successfully`);
       setDeletingProduct(null);
+      setDeleteError(null);
     } catch (err: unknown) {
       const error = err as { data?: { message?: string } };
-      toast.error(error?.data?.message ?? 'Failed to delete product');
+      setDeleteError(error?.data?.message ?? 'Failed to delete product. Please try again.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletingProduct(null);
+    setDeleteError(null);
   };
 
   const renderTags = (tags: string[]) => {
@@ -388,8 +417,10 @@ export function ProductsTable() {
         <DeleteConfirmDialog
           product={deletingProduct}
           onConfirm={handleDeleteConfirm}
-          onCancel={() => setDeletingProduct(null)}
+          onCancel={handleDeleteCancel}
+          onClose={handleDeleteCancel}
           isLoading={isDeleting}
+          errorMessage={deleteError}
         />
       )}
     </div>
